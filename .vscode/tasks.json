@@ -1,0 +1,30 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dependency",
+			"type": "shell",
+			"command": "mvn dependency:resolve",
+			"group": "build",
+			"problemMatcher": [],
+			"isBackground": false
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "mvn -am -pl war,bom -Pquick-build clean install",
+			"group": "build",
+			"problemMatcher": [],
+			"isBackground": false
+		},
+		{
+			"label": "run",
+			"type": "shell",
+			"command": "mvn -pl war jetty:run -Dskip.yarn",
+			"group": "build",
+			"problemMatcher": [],
+			"isBackground": false
+		}
+	]
+}
+
