@@ -7,10 +7,8 @@
             // Append -bullseye or -buster to pin to an OS version.
             // Use the -bullseye variants on local arm64/Apple Silicon.
             "JDK_VERSION": "11",
-            "HTTP_PROXY": "http://child-prc.intel.com:913",
-            "HTTPS_PROXY": "http://child-prc.intel.com:913",
-            "http_proxy": "http://child-prc.intel.com:913",
-            "https_proxy": "http://child-prc.intel.com:913",
+            "PROXY": "${localEnv:http_proxy}",
+            "USER": "${localEnv:USER}",
             // Options
             "INSTALL_MAVEN": "true",
             "MAVEN_VERSION": "3.8.6",
@@ -24,7 +22,7 @@
         "vscode": {
             // Set *default* container specific settings.json values on container create.
             "settings": {
-                "http.proxy": "http://child-prc.intel.com:913",
+                "http.proxy": "${localEnv:http_proxy}",
                 "http.proxyStrictSSL": false
             },
             // Add the IDs of extensions you want installed when the container is created.
@@ -37,16 +35,17 @@
         }
     },
     "mounts": [
-        "source=${localEnv:HOME}/.gnupg,target=/root/.gnupg,type=bind,consistency=cached",
-        "source=${localEnv:HOME}/.netrc,target=/root/.netrc,type=bind,consistency=cached",
-        "source=${localEnv:HOME}/.m2,target=/root/.m2,type=bind,consistency=cached"
+        "source=${localEnv:HOME}/.gnupg,target=/home/${localEnv:USER}/.gnupg,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.netrc,target=/home/${localEnv:USER}/.netrc,type=bind,consistency=cached",
+        "source=${localEnv:JAVA_HOME}/lib/security/cacerts,target=/usr/lib/jvm/msopenjdk-current/lib/security/cacerts,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.m2,target=/home/${localEnv:USER}/.m2,type=bind,consistency=cached"
     ],
     "remoteEnv": {
         "SHELL": "/bin/bash",
-        "HTTP_PROXY": "http://child-prc.intel.com:913",
-        "http_proxy": "http://child-prc.intel.com:913",
-        "HTTPS_PROXY": "http://child-prc.intel.com:913",
-        "https_proxy": "http://child-prc.intel.com:913",
+        "HTTP_PROXY": "${localEnv:http_proxy}",
+        "http_proxy": "${localEnv:http_proxy}",
+        "HTTPS_PROXY": "${localEnv:http_proxy}",
+        "https_proxy": "${localEnv:http_proxy}",
         "MAVEN_OPTS": "-Dhttp.proxyHost=child-prc.intel.com -Dhttp.proxyPort=913 -Dhttps.proxyHost=child-prc.intel.com -Dhttps.proxyPort=913"
     },
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -54,6 +53,5 @@
     // Use 'postCreateCommand' to run commands after the container is created.
     // "postCreateCommand": "java -version",
     // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-    "remoteUser": "root"
+    "remoteUser": "${localEnv:USER}"
 }
-

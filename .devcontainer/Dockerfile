@@ -2,10 +2,10 @@
 ARG JDK_VERSION=11
 FROM mcr.microsoft.com/vscode/devcontainers/java:${JDK_VERSION}
 
-ENV http_proxy=${HTTP_PROXY}
-ENV HTTP_PROXY=${HTTP_PROXY}
-ENV https_proxy=${HTTPS_PROXY}
-ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV http_proxy=${PROXY}
+ENV HTTP_PROXY=${PROXY}
+ENV https_proxy=${PROXY}
+ENV HTTPS_PROXY=${PROXY}
 
 # [Option] Install Maven
 ARG INSTALL_MAVEN="false"
@@ -21,11 +21,18 @@ ARG NODE_VERSION="none"
 RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
 # [Optional] Uncomment this section to install additional OS packages.
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends vim iputils-ping
-
-RUN echo "\nexport GPG_TTY=\$(tty)\n" >> /root/.bashrc
+RUN apt-get update -y && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends vim iputils-ping sudo
 
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
 
+ARG USER=""
+RUN userdel -r vscode \
+    && groupadd --gid 1000 ${USER} \
+    && useradd --uid 1000 --gid 1000 -s /bin/bash -m ${USER} \
+    && printf "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && cp /root/.bashrc /home/${USER} \
+    && printf "\nexport GPG_TTY=\$(tty)\n" >> /home/${USER}/.bashrc
+
+USER ${USER}
